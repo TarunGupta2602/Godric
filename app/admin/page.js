@@ -4,8 +4,9 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import ManageBlogs from './manageblog';
+import { ProtectedAdminRoute, AdminLogoutButton } from '@/lib/admin-auth';
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [activeTab, setActiveTab] = useState('product'); // 'product', 'category', or 'blog'
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -76,7 +77,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <AdminLogoutButton />
+      </div>
 
       {/* Tabs */}
       <div className="flex justify-center mb-8">
@@ -207,6 +211,14 @@ export default function AdminDashboard() {
         />
       )}
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <ProtectedAdminRoute>
+      <AdminDashboardContent />
+    </ProtectedAdminRoute>
   );
 }
 
