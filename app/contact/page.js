@@ -1,251 +1,327 @@
 "use client";
 import React, { useState } from "react";
-import Link from "next/link";
+// Assuming you have this file set up for Supabase connection
+import { supabase } from "@/lib/supabase"; 
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
-    message: ""
+    message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null); 
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 3000);
+    setError(null);
+    setIsSubmitting(true);
+
+    if (!formData.name || !formData.email || !formData.message) {
+      setError("Please fill out your Name, Email, and Message.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const { data, error: submitError } = await supabase
+        .from("contact_submissions")
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+          },
+        ]);
+
+      if (submitError) {
+        throw submitError;
+      }
+      
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      }, 3000);
+
+    } catch (err) {
+      console.error("Submission Error:", err);
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactMethods = [
     {
       icon: "📧",
-      title: "Email Us",
-      detail: "abbaysharma456@gmail.com",
-      description: "Send us an email anytime"
+      title: "Email Support",
+      detail: "Godricfashionfactory@gmail.com",
+      description: "Send us a detailed inquiry anytime, 24/7.",
     },
     {
       icon: "📞",
-      title: "Call Us",
-      detail: "+91 8937914255",
-      description: "Mon-Fri from 8am to 6pm"
+      title: "Phone (India)",
+      detail: "+91 9354410145",
+      description: "Mon-Fri from 8:00 AM to 6:00 PM (IST).",
     },
     {
       icon: "💬",
-      title: "Live Chat",
-      detail: "Available 24/7",
-      description: "Chat with our support team"
+      title: "Online Chat",
+      detail: "Response within 1 Hour",
+      description: "Available for quick questions and immediate help.",
     },
     {
       icon: "📍",
-      title: "Visit Us",
-      detail: "Mahendra enclave shastri nagar ghaziabad",
-      description: "Mahendra enclave shastri nagar ghaziabad"
-    }
+      title: "Our Location",
+      detail: "Mahendra enclave, Shastri Nagar, Ghaziabad",
+      description: "Please schedule an appointment before visiting.",
+    },
   ];
 
   const faqs = [
     {
       question: "How long does shipping take?",
-      answer: "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 day delivery."
+      answer:
+        "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 day delivery.",
     },
     {
       question: "What is your return policy?",
-      answer: "We offer a 30-day money-back guarantee on all products. Items must be in original condition with tags attached."
+      answer:
+        "We offer a 30-day money-back guarantee on all products. Items must be in original condition with tags attached.",
     },
     {
       question: "Do you ship internationally?",
-      answer: "Yes! We ship to over 100 countries worldwide. International shipping times vary by location."
+      answer:
+        "Yes! We ship to over 100 countries worldwide. International shipping times vary by location.",
     },
     {
       question: "How can I track my order?",
-      answer: "Once your order ships, you'll receive a tracking number via email. You can also track orders in your account dashboard."
-    }
+      answer:
+        "Once your order ships, you'll receive a tracking number via email. You can also track orders in your account dashboard.",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 font-sans">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
-        
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">Get in Touch</h1>
-            <p className="text-xl text-blue-100 leading-relaxed">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-            </p>
-          </div>
+      <section className="relative bg-gray-900 text-white py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAwIDIwIEwgNDAgMjAgTSAwIDMwIEwgNDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzU1NTU1NSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHBhdGggZD0iTSAxMCAwIEwgMTAgNDAgTSAyMCAwIEwgMjAgNDAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzU1NTU1NSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]"></div>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10 text-center">
+          <p className="text-indigo-400 text-sm font-semibold uppercase tracking-widest mb-3">
+            Customer Support
+          </p>
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+            Connect With Our Team
+          </h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            We are dedicated to providing fast and comprehensive support. Reach out
+            to us using the method that suits you best.
+          </p>
         </div>
       </section>
 
       {/* Contact Methods */}
-      <section className="py-16 -mt-12 relative z-10">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {contactMethods.map((method, index) => (
-              <div 
+              <div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="bg-white border border-gray-100 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 ease-out transform hover:-translate-y-1"
               >
-                <div className="text-5xl mb-4">{method.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{method.title}</h3>
-                <p className="text-purple-600 font-semibold mb-1">{method.detail}</p>
-                <p className="text-gray-600 text-sm">{method.description}</p>
+                <div className="text-4xl text-indigo-600 mb-4">{method.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {method.title}
+                </h3>
+                <p className="text-indigo-600 font-semibold mb-1 truncate">
+                  {method.detail}
+                </p>
+                <p className="text-gray-500 text-sm">{method.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Form Section */}
-      <section className="py-20">
+      {/* Contact Form & FAQ Section */}
+      <section className="py-16 bg-white border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            
             {/* Form */}
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Send us a Message</h2>
+            <div className="p-8 border border-gray-200 rounded-2xl shadow-xl">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Send a Direct Message
+              </h2>
               <p className="text-gray-600 mb-8">
-                Fill out the form below and our team will get back to you within 24 hours.
+                For detailed inquiries, submit this form. We aim to reply within
+                one business day.
               </p>
 
+              {/* Status Messages */}
               {submitted && (
-                <div className="mb-6 bg-green-50 border border-green-200 text-green-800 rounded-xl p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">✓</span>
-                    <span className="font-semibold">Message sent successfully!</span>
+                <div className="mb-6 bg-green-50 border border-green-300 text-green-700 rounded-xl p-4 flex items-start gap-3">
+                  <span className="text-xl">✅</span>
+                  <div>
+                    <span className="font-semibold block">Message Sent!</span>
+                    <p className="text-sm">Thank you, we'll be in touch shortly.</p>
                   </div>
-                  <p className="text-sm mt-1 ml-8">We'll get back to you soon.</p>
+                </div>
+              )}
+              {error && (
+                <div className="mb-6 bg-red-50 border border-red-300 text-red-700 rounded-xl p-4 flex items-start gap-3">
+                  <span className="text-xl">❌</span>
+                  <div>
+                    <span className="font-semibold block">Error:</span>
+                    <p className="text-sm">{error}</p>
+                  </div>
                 </div>
               )}
 
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="John Doe"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Input Fields (Refined styles) */}
+                <InputGroup
+                  label="Your Name"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  required
+                />
+                <InputGroup
+                  label="Email Address"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                  required
+                />
+                <InputGroup
+                  label="Subject"
+                  type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Order Inquiry / Partnership Request"
+                />
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="john@example.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="How can we help you?"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Message
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                    Message*
                   </label>
                   <textarea
+                    id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    rows="6"
+                    rows="5"
                     placeholder="Tell us more about your inquiry..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                    required
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none shadow-sm"
                   ></textarea>
                 </div>
 
                 <button
-                  onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-md ${
+                    isSubmitting
+                      ? 'bg-indigo-300 cursor-not-allowed'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl'
+                  }`}
                 >
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Submit Inquiry"}
                 </button>
-              </div>
+              </form>
             </div>
 
-            {/* FAQ & Map */}
+            {/* FAQ */}
             <div className="space-y-8">
-              {/* FAQs */}
-              <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h3>
+              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200 shadow-lg">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">
+                  Quick Answers (FAQ)
+                </h3>
                 <div className="space-y-6">
                   {faqs.map((faq, index) => (
-                    <div key={index} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
-                      <h4 className="font-semibold text-gray-900 mb-2">{faq.question}</h4>
-                      <p className="text-gray-600 text-sm leading-relaxed">{faq.answer}</p>
+                    <div
+                      key={index}
+                      className="pb-4"
+                    >
+                      <h4 className="font-semibold text-indigo-600 mb-1 text-lg">
+                        {faq.question}
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed text-base">
+                        {faq.answer}
+                      </p>
                     </div>
                   ))}
                 </div>
-                
               </div>
-
-
-              
             </div>
           </div>
         </div>
       </section>
 
       {/* Office Hours */}
-      <section className="py-16 bg-white">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Office Hours</h2>
-            <p className="text-gray-600">We're here to help during these hours</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Operational Hours
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Our core team is available during these hours for phone and chat support.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl mb-3">🕐</div>
-              <h3 className="font-bold text-gray-900 mb-2">Monday - Friday</h3>
-              <p className="text-gray-600">8:00 AM - 6:00 PM</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-3">🕑</div>
-              <h3 className="font-bold text-gray-900 mb-2">Saturday</h3>
-              <p className="text-gray-600">10:00 AM - 4:00 PM</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-3">🕒</div>
-              <h3 className="font-bold text-gray-900 mb-2">Sunday</h3>
-              <p className="text-gray-600">Closed</p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+            <TimeCard icon="🏢" day="Monday - Friday" hours="8:00 AM - 6:00 PM IST" />
+            <TimeCard icon="🧑‍💻" day="Saturday" hours="10:00 AM - 4:00 PM IST" isWeekend />
+            <TimeCard icon="🚪" day="Sunday" hours="Closed" isClosed />
           </div>
         </div>
       </section>
     </div>
   );
 }
+
+// Reusable Input Component (For cleaner JSX)
+const InputGroup = ({ label, type, name, value, onChange, placeholder, required = false }) => (
+  <div>
+    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+      {label}{required && "*"}
+    </label>
+    <input
+      type={type}
+      id={name}
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      required={required}
+      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+    />
+  </div>
+);
+
+// Reusable TimeCard Component (For cleaner JSX)
+const TimeCard = ({ icon, day, hours, isWeekend, isClosed }) => (
+  <div className={`text-center p-4 rounded-lg transition-all ${isClosed ? 'bg-gray-50 text-gray-400' : isWeekend ? 'bg-indigo-50 text-indigo-800' : 'bg-white text-gray-900'}`}>
+    <div className="text-3xl mb-3">{icon}</div>
+    <h3 className={`font-bold mb-1 ${isClosed ? 'text-gray-500' : 'text-gray-900'}`}>{day}</h3>
+    <p className={`text-lg font-semibold ${isClosed ? 'text-gray-500' : 'text-indigo-600'}`}>{hours}</p>
+  </div>
+);

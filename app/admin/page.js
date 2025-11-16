@@ -3,9 +3,10 @@
 
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
+import ManageBlogs from './manageblog';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('product'); // 'product' or 'category'
+  const [activeTab, setActiveTab] = useState('product'); // 'product', 'category', or 'blog'
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [editingItem, setEditingItem] = useState(null); // { id, type: 'product' or 'category', data }
@@ -87,9 +88,15 @@ export default function AdminDashboard() {
         </button>
         <button
           onClick={() => setActiveTab('category')}
-          className={`px-6 py-3 font-semibold rounded-r-lg ${activeTab === 'category' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600'}`}
+          className={`px-6 py-3 font-semibold ${activeTab === 'category' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600'}`}
         >
           Add Category
+        </button>
+        <button
+          onClick={() => setActiveTab('blog')}
+          className={`px-6 py-3 font-semibold rounded-r-lg ${activeTab === 'blog' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600'}`}
+        >
+          Manage Blog
         </button>
       </div>
 
@@ -97,14 +104,17 @@ export default function AdminDashboard() {
       <div className="bg-white p-8 rounded-lg shadow-lg mb-12">
         {activeTab === 'product' ? (
           <ProductForm categories={categories} onSuccess={refreshData} />
-        ) : (
+        ) : activeTab === 'category' ? (
           <CategoryForm onSuccess={refreshData} />
+        ) : (
+          <ManageBlogs />
         )}
       </div>
 
       {/* Lists */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Products List */}
+        {activeTab !== 'blog' && (
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">Products List</h2>
           {products.length === 0 ? (
@@ -142,8 +152,10 @@ export default function AdminDashboard() {
             </ul>
           )}
         </div>
+        )}
 
         {/* Categories List */}
+        {activeTab !== 'blog' && (
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">Categories List</h2>
           {categories.length === 0 ? (
@@ -179,6 +191,7 @@ export default function AdminDashboard() {
             </ul>
           )}
         </div>
+        )}
       </div>
 
       {/* Edit Modal */}

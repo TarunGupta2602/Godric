@@ -76,7 +76,7 @@ export default function ProductPage({ params }) {
       slug: product.slug,
       size: selectedSize,
       color: selectedColor,
-      quantity,
+      qty: quantity,
     };
     let cart = [];
     try {

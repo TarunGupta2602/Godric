@@ -82,12 +82,7 @@ export default async function CategoryPage({ params }) {
               </div>
               <h2 className="text-2xl font-semibold text-gray-700 mb-4">No Products Yet</h2>
               <p className="text-gray-600 mb-8">Be the first to shop this category!</p>
-              <Link
-                href="/admin"
-                className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition"
-              >
-                Add Products (Admin)
-              </Link>
+              
             </div>
           ) : (
             <>
